@@ -123,7 +123,21 @@ const gulpSass = (options, sync) => through.obj((file, enc, cb) => { // eslint-d
   };
 
   // eslint-disable-next-line global-require, import/no-extraneous-dependencies
-  const compiler = gulpSass.compiler || require('node-sass');
+  let compiler = gulpSass.compiler;
+  if (!compiler) {
+    try {
+      compiler = require('node-sass');
+    } catch (e) {
+      try {
+        compiler = require('sass');
+      } catch (e) {
+        return cb(new PluginError(
+          PLUGIN_NAME,
+          "No compiler found!\nPlease install one of the npm packages: node-sass or sass, or set compiler in code:\n    const sass = require('gulp-sass');\n    sass.compiler = require('sass');\n"
+        ));
+      }
+    }
+  }
 
   if (sync !== true) {
     //////////////////////////////
